@@ -8,12 +8,12 @@ public class ParsedDocument extends Document  {
 
 	public ParsedDocument(Document doc){
     super(doc);
-    tf = TFIDF.generateTF(words);
+    tf = TFIDF.generateTF(doc.words);
 	}
 
   public void generateTFIDF(List<String> words, List<ParsedDocument> parsed){
     idf = TFIDF.generateIDF(words, parsed);
-    for (String word : new HashSet<String>(words)) {
+    for (String word : tf.keySet()) {
         if(!tfidf.containsKey(word)){
           tfidf.put(word, tf.get(word) * idf.get(word));
         }

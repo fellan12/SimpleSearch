@@ -15,7 +15,7 @@ public class TFIDF {
 
     public static HashMap<String, Double> generateIDF(List<String> words, List<ParsedDocument> docs) {
       HashMap<String, Double> idf = new HashMap<String, Double>();
-        for (String word : new HashSet<String>(words)) {
+        for (String word : words) {
           double numOfDocs = 0;
           for (ParsedDocument pDoc : docs) {
             if(pDoc.getTF().containsKey(word)){
