@@ -1,15 +1,23 @@
 import java.util.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
+import java.nio.file.*;
 import java.util.stream.Collectors;
-public class TFIDFIndexer  {
-	List<ParsedDocument> parsedDocs;
 
+/**
+* A class that indexes a set of documents for TF-IDF searching
+*
+* @author Felix
+*/
+public class TFIDFIndexer  {
+	List<ParsedDocument> docs;
+
+	/**
+	* Constructor that indexes all the documents given a path
+	*
+	* @param path - Path to the documents
+	*/
 	public TFIDFIndexer(String path) {
-		List<Document> docs = new ArrayList<Document>();
+		docs = new ArrayList<ParsedDocument>();
 
 		try{
 			//Get files
@@ -20,16 +28,16 @@ public class TFIDFIndexer  {
 
 			//Create documents
 			for (File f : filesInFolder) {
-       docs.add(new Document(f));
+       docs.add(new ParsedDocument(f));
       }
 
 			//Parse documents (generate tf, idf, tfidf)
-			parsedDocs = parseDocuments(docs);
+			parseDocuments(docs);
 
 			//============
 			// For testing
 			//============
-			// for (ParsedDocument pDoc : parsedDocs) {
+			// for (ParsedDocument pDoc : docs) {
 			// 	System.out.println(pDoc.getFile().getName());
 			// 	System.out.println("TF");
 			// 	for (Map.Entry<String, Double> entry : pDoc.getTF().entrySet()) {
@@ -51,33 +59,50 @@ public class TFIDFIndexer  {
 		}
 	}
 
+	/**
+	* Parses the documents and fills them with a TF-map, IDF-map and TFIDF-map
+	* given the information of the documents
+	*
+	* @param docs - a list of documents
+	* @return a list of parsed documents
+	*/
+	private void parseDocuments(List<ParsedDocument> docs){
+		List<ParsedDocument> parsed = new ArrayList<ParsedDocument>();
+
+		//Set TF
+		for (ParsedDocument doc : docs) {
+			doc.setTF(TFIDFGenerator.generateTF(doc.getWords()));
+		}
+
+		//Set IDF and TFIDF
+		for (ParsedDocument doc : docs) {
+			doc.setIDF(TFIDFGenerator.generateIDF(doc.getWords(), docs));
+			doc.setTFIDF(TFIDFGenerator.generateTFIDF(doc, docs));
+		}
+	}
+
+	/**
+	* Searchs for the phrase in the indexes documents
+	*
+	* @param phrase - Search phrase
+	* @return a Hashmap containing the phrases words mapped to a list of documents
+	*/
 	public HashMap<String, List<ParsedDocument>> search(String phrase){
 		HashMap<String, List<ParsedDocument>> invertedIndex = new HashMap<String, List<ParsedDocument>>();
-		String[] phraseWords = phrase.split(" ");
+		String[] phraseWords = phrase.replaceAll("[^a-zA-Z ]", "").split("\\s+");
 		for (String pWord : phraseWords) {
 			 List<ParsedDocument> relevanceDocs = new ArrayList<>();
-			for (ParsedDocument pDoc : parsedDocs) {
+			for (ParsedDocument pDoc : docs) {
 				if(pDoc.getWords().contains(pWord)){
 					relevanceDocs.add(pDoc);
 				}
 			}
+			//Sort relevant documents by TF-IDF scoring
 			Collections.sort(relevanceDocs, new ParsedDocumentComperator(pWord));
 			invertedIndex.put(pWord, relevanceDocs);
 		}
 		return invertedIndex;
 	}
 
-	private List<ParsedDocument> parseDocuments(List<Document> docs){
-		List<ParsedDocument> parsed = new ArrayList<ParsedDocument>();
-		ParsedDocument parsedDoc;
 
-		for (Document doc : docs ) {
-			parsed.add(new ParsedDocument(doc));
-		}
-
-		for (ParsedDocument parDoc : parsed) {
-			parDoc.generateTFIDF(parDoc.getWords(), parsed);
-		}
-		return parsed;
-	}
 }
