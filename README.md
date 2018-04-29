@@ -19,5 +19,5 @@ Run:
 `java SimpleSearch ./Avicii "Hey brother"`  
 
 Returns:  
-Hey : [HeyBrother.txt, FriendOfMine.txt]  
-brother : [HeyBrother.txt, SomewhereInStockholm.txt]
+`Hey : [HeyBrother.txt, FriendOfMine.txt]`  
+`brother : [HeyBrother.txt, SomewhereInStockholm.txt]`
