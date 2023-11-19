@@ -1,3 +1,5 @@
+# THIS CODE WAS PART OF AN TECHNICAL INTERVIEW PROCESS
+
 # SimpleSearch
 A simple search engine that given a set of documents and a search phrase, searches though the documents and returns an inverted index of the search phrase's words and a list of documents sorted by relevance through TF/IDF scoring. Keep in mind that the search phrase is case-sensitive.
 
